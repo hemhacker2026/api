@@ -1,1 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>จัดการข้อมูล Google Sheets</title>
+</head>
+<body>
+    <h1>📊 จัดการข้อมูล</h1>
+    <button onclick="fetchData()">โหลดข้อมูล</button>
+    <button onclick="addData()">เพิ่มข้อมูล</button>
+    <button onclick="updateData()">แก้ไขข้อมูล</button>
+    <button onclick="deleteData()">ลบข้อมูล</button>
+    <pre id="result">รอการทำงาน...</pre>
 
+    <script>
+        // ตั้งค่า URL และ API Secret (ต้องตรงกับที่ตั้งใน Worker)
+        const PROXY_URL = '      https://soft-hat-639a.hem5426.workers.dev/api/data';
+        const API_SECRET = 'MySuperSecretKey123!@#';
+
+        function showResult(data) {
+            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // 1. อ่านข้อมูล
+        async function fetchData() {
+            const res = await fetch(PROXY_URL, {
+                headers: { 'X-API-Secret': API_SECRET }
+            });
+            const data = await res.json();
+            showResult(data);
+        }
+
+        // 2. เพิ่มข้อมูล
+        async function addData() {
+            const newRow = ['สินค้าใหม่', 99, 'ตัว'];
+            const res = await fetch(PROXY_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Secret': API_SECRET
+                },
+                body: JSON.stringify({ rowData: newRow })
+            });
+            const data = await res.json();
+            showResult(data);
+            fetchData(); // รีเฟรชข้อมูล
+        }
+
+        // 3. แก้ไขข้อมูล (index 0 = แถวแรก)
+        async function updateData() {
+            const index = 0;
+            const updatedRow = ['สินค้าเก่า (แก้ไข)', 200, 'โหล'];
+            const res = await fetch(`${PROXY_URL}/${index}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Secret': API_SECRET
+                },
+                body: JSON.stringify({ rowData: updatedRow })
+            });
+            const data = await res.json();
+            showResult(data);
+            fetchData();
+        }
+
+        // 4. ลบข้อมูล (index 0 = แถวแรก)
+        async function deleteData() {
+            const index = 0;
+            const res = await fetch(`${PROXY_URL}/${index}`, {
+                method: 'DELETE',
+                headers: { 'X-API-Secret': API_SECRET }
+            });
+            const data = await res.json();
+            showResult(data);
+            fetchData();
+        }
+
+        // โหลดข้อมูลอัตโนมัติเมื่อเปิดหน้า
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
