@@ -2796,13 +2796,12 @@
     <div id="alertContainer"></div>
 
     <!-- ================================================================
-    JAVASCRIPT – Full System with Enhanced New Members
+    JAVASCRIPT – Full System with Cloudflare Worker + Google Sheets
     ================================================================ -->
     <script>
         // ================================================================
-        // CONFIG – CLOUDFLARE WORKER (MODIFIED)
+        // CONFIG – Cloudflare Worker (ใช้ Query Parameter ส่ง API Key)
         // ================================================================
-        // 🔥 เปลี่ยน backend เป็น Cloudflare Worker ของคุณ 🔥
         const PROXY_URL = 'https://soft-hat-639a.hem5426.workers.dev';
         const API_SECRET = 'MySuperSecretKey84265!@#';
         const ADMIN_RECOVERY_CODE = 'adminreset-2026';
@@ -2886,19 +2885,16 @@
         }
 
         // ================================================================
-        // PROXY CONNECTION – WITH API KEY AUTH (MODIFIED)
+        // PROXY CONNECTION – WITH API KEY via Query Parameter (No CORS)
         // ================================================================
         async function fetchSheetData(tabName, retries = 2) {
             for (let attempt = 0; attempt <= retries; attempt++) {
                 try {
                     const url =
-                        `${PROXY_URL}?action=get&tabName=${encodeURIComponent(tabName)}&_=${Date.now()}`;
+                        `${PROXY_URL}?action=get&tabName=${encodeURIComponent(tabName)}&api_key=${API_SECRET}&_=${Date.now()}`;
                     const response = await fetch(url, {
                         method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-API-Key': API_SECRET // 🔥 เพิ่ม API Key
-                        },
+                        headers: { 'Accept': 'application/json' },
                         cache: 'no-cache'
                     });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -2928,13 +2924,12 @@
 
         async function appendSheetData(tabName, newRow) {
             try {
-                const url = `${PROXY_URL}?action=add&tabName=${encodeURIComponent(tabName)}&_=${Date.now()}`;
+                const url = `${PROXY_URL}?action=add&tabName=${encodeURIComponent(tabName)}&api_key=${API_SECRET}&_=${Date.now()}`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-API-Key': API_SECRET // 🔥 เพิ่ม API Key
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(newRow)
                 });
@@ -2948,13 +2943,12 @@
 
         async function updateSheetRow(tabName, rowId, updateData) {
             try {
-                const url = `${PROXY_URL}?action=update&tabName=${encodeURIComponent(tabName)}&_=${Date.now()}`;
+                const url = `${PROXY_URL}?action=update&tabName=${encodeURIComponent(tabName)}&api_key=${API_SECRET}&_=${Date.now()}`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-API-Key': API_SECRET // 🔥 เพิ่ม API Key
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({ rowId, updateData })
                 });
@@ -6215,7 +6209,7 @@
             else document.getElementById('loginPage').classList.remove('hidden');
         });
 
-        console.log('✅ Gym Pro v4.1 – Connected to Cloudflare Worker');
+        console.log('✅ Gym Pro v4.1 – Connected to Cloudflare Worker + Google Sheets');
         console.log('🔗 Worker URL:', PROXY_URL);
         console.log('🔑 API Key:', API_SECRET ? '✅ Set' : '❌ Not set');
         console.log('📊 All systems ready.');
