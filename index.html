@@ -1,81 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-    <title>จัดการข้อมูล Google Sheets</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจัดการสมาชิก</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+    </style>
 </head>
 <body>
-    <h1>📊 จัดการข้อมูล</h1>
-    <button onclick="fetchData()">โหลดข้อมูล</button>
-    <button onclick="addData()">เพิ่มข้อมูล</button>
-    <button onclick="updateData()">แก้ไขข้อมูล</button>
-    <button onclick="deleteData()">ลบข้อมูล</button>
-    <pre id="result">รอการทำงาน...</pre>
+    <div class="container">
+        <div class="header">
+            <h1>🏋️ ระบบจัดการสมาชิกฟิตเนส</h1>
+            <div>
+                <button onclick="loadData('بيانات الأعضاء')">📊 สมาชิก</button>
+                <button onclick="loadData('سجل دخول الجيم')">📅 การเข้า</button>
+                <button onclick="loadData('سجل المدفوعات')">💰 การชำระเงิน</button>
+                <button onclick="loadData('لوحة التحكم')">⚙️ แผงควบคุม</button>
+            </div>
+        </div>
+        <hr>
+        <h3 id="sheetTitle">📋 ข้อมูลสมาชิก</h3>
+        <div id="tableContainer"></div>
+        <hr>
+        <div id="result"></div>
+    </div>
 
     <script>
-        // ตั้งค่า URL และ API Secret (ต้องตรงกับที่ตั้งใน Worker)
+        // ============================================
+        // ตั้งค่า
+        // ============================================
         const PROXY_URL = 'https://soft-hat-639a.hem5426.workers.dev/api/data';
-        const API_SECRET = 'MySuperSecretKey123!@#';
+        const API_SECRET = 'MySuperSecretKey84265!@#';
 
-        function showResult(data) {
-            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        // ============================================
+        // โหลดข้อมูล
+        // ============================================
+        async function loadData(sheetName) {
+            const url = `${PROXY_URL}?sheet=${encodeURIComponent(sheetName)}`;
+            document.getElementById('sheetTitle').textContent = `📋 ${sheetName}`;
+
+            try {
+                const response = await fetch(url, {
+                    headers: { 'X-API-Secret': API_SECRET }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    renderTable(data.data);
+                    document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                } else {
+                    document.getElementById('tableContainer').innerHTML = `<p>❌ ไม่พบข้อมูล: ${data.error || 'Unknown error'}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('tableContainer').innerHTML = `<p>❌ Error: ${error.message}</p>`;
+            }
         }
 
-        // 1. อ่านข้อมูล
-        async function fetchData() {
-            const res = await fetch(PROXY_URL, {
-                headers: { 'X-API-Secret': API_SECRET }
+        // ============================================
+        // แสดงผลเป็นตาราง
+        // ============================================
+        function renderTable(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('tableContainer').innerHTML = '<p>📭 ไม่มีข้อมูล</p>';
+                return;
+            }
+
+            let html = '<table>';
+            // หัวตาราง (แถวแรก)
+            html += '<thead><tr>';
+            data[0].forEach(header => {
+                html += `<th>${header || ''}</th>`;
             });
-            const data = await res.json();
-            showResult(data);
+            html += '</tr></thead>';
+
+            // ข้อมูล (แถวที่เหลือ)
+            html += '<tbody>';
+            for (let i = 1; i < data.length; i++) {
+                html += '<tr>';
+                data[i].forEach(cell => {
+                    html += `<td>${cell || ''}</td>`;
+                });
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+
+            document.getElementById('tableContainer').innerHTML = html;
         }
 
-        // 2. เพิ่มข้อมูล
-        async function addData() {
-            const newRow = ['สินค้าใหม่', 99, 'ตัว'];
-            const res = await fetch(PROXY_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-Secret': API_SECRET
-                },
-                body: JSON.stringify({ rowData: newRow })
-            });
-            const data = await res.json();
-            showResult(data);
-            fetchData(); // รีเฟรชข้อมูล
-        }
-
-        // 3. แก้ไขข้อมูล (index 0 = แถวแรก)
-        async function updateData() {
-            const index = 0;
-            const updatedRow = ['สินค้าเก่า (แก้ไข)', 200, 'โหล'];
-            const res = await fetch(`${PROXY_URL}/${index}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-Secret': API_SECRET
-                },
-                body: JSON.stringify({ rowData: updatedRow })
-            });
-            const data = await res.json();
-            showResult(data);
-            fetchData();
-        }
-
-        // 4. ลบข้อมูล (index 0 = แถวแรก)
-        async function deleteData() {
-            const index = 0;
-            const res = await fetch(`${PROXY_URL}/${index}`, {
-                method: 'DELETE',
-                headers: { 'X-API-Secret': API_SECRET }
-            });
-            const data = await res.json();
-            showResult(data);
-            fetchData();
-        }
-
-        // โหลดข้อมูลอัตโนมัติเมื่อเปิดหน้า
-        window.onload = fetchData;
+        // ============================================
+        // โหลดอัตโนมัติเมื่อเปิดหน้า
+        // ============================================
+        window.onload = function() {
+            loadData('بيانات الأعضاء');
+        };
     </script>
 </body>
 </html>
