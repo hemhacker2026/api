@@ -2,387 +2,164 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏋️ ระบบจัดการสมาชิกฟิตเนส</title>
+    <title>🏋️ ระบบจัดการสมาชิก</title>
     <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-            background: #f0f2f5;
-        }
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1a237e;
-            border-bottom: 3px solid #1a237e;
-            padding-bottom: 10px;
-        }
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        .btn-group button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            color: white;
-            transition: 0.3s;
-        }
-        .btn-group button:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f2f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #1a237e; border-bottom: 3px solid #1a237e; padding-bottom: 10px; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+        .btn-group button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
         .btn-sheet1 { background: #1565C0; }
         .btn-sheet2 { background: #2E7D32; }
         .btn-sheet3 { background: #E65100; }
         .btn-sheet4 { background: #6A1B9A; }
-        .btn-action { background: #37474F; }
-        .btn-danger { background: #C62828; }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-            padding: 15px;
-            background: #e8eaf6;
-            border-radius: 8px;
-            align-items: center;
-        }
-        .controls input, .controls select {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-        .controls button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-add { background: #43A047; color: white; }
-        .btn-update { background: #1E88E5; color: white; }
-        .btn-delete { background: #E53935; color: white; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 14px;
-            overflow-x: auto;
-            display: block;
-        }
-        thead { background: #1a237e; color: white; }
-        th, td {
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            text-align: left;
-            white-space: nowrap;
-        }
+        .controls { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px; background: #e8eaf6; border-radius: 8px; margin: 10px 0; align-items: center; }
+        .controls input { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-add { background: #43A047; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-update { background: #1E88E5; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-delete { background: #E53935; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-refresh { background: #37474F; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #1a237e; color: white; padding: 10px; text-align: left; }
+        td { padding: 8px 10px; border: 1px solid #ddd; }
         tr:nth-child(even) { background: #f5f5f5; }
-        tr:hover { background: #e3f2fd; }
-
-        #result {
-            background: #263238;
-            color: #aed581;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            max-height: 300px;
-            overflow: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-        }
-        .loading {
-            color: #1a237e;
-            font-weight: bold;
-            padding: 20px;
-        }
-        .error {
-            color: #C62828;
-            padding: 20px;
-            background: #ffebee;
-            border-radius: 8px;
-        }
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            background: #e8eaf6;
-            border-radius: 6px;
-            margin: 5px 0;
-        }
-        .badge {
-            background: #1a237e;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-        .scrollable {
-            overflow-x: auto;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        @media (max-width: 600px) {
-            .container { padding: 10px; }
-            .controls { flex-direction: column; align-items: stretch; }
-            .btn-group button { flex: 1; }
-        }
+        #result { background: #263238; color: #aed581; padding: 15px; border-radius: 6px; margin-top: 15px; max-height: 200px; overflow: auto; font-size: 12px; white-space: pre-wrap; }
+        .status { padding: 8px 12px; background: #e8eaf6; border-radius: 6px; margin: 5px 0; }
+        .loading { color: #1a237e; padding: 20px; text-align: center; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>🏋️ ระบบจัดการสมาชิกฟิตเนส</h1>
-    
-    <!-- ปุ่มเลือกชีต -->
+
     <div class="btn-group">
-        <button class="btn-sheet1" onclick="loadSheet('بيانات الأعضاء')">📊 ข้อมูลสมาชิก</button>
-        <button class="btn-sheet2" onclick="loadSheet('سجل دخول الجيم')">📅 บันทึกการเข้า</button>
-        <button class="btn-sheet3" onclick="loadSheet('سجل المدفوعات')">💰 บันทึกการชำระเงิน</button>
+        <button class="btn-sheet1" onclick="loadSheet('بيانات الأعضاء')">📊 สมาชิก</button>
+        <button class="btn-sheet2" onclick="loadSheet('سجل دخول الجيم')">📅 การเข้า</button>
+        <button class="btn-sheet3" onclick="loadSheet('سجل المدفوعات')">💰 การชำระเงิน</button>
         <button class="btn-sheet4" onclick="loadSheet('لوحة التحكم')">⚙️ แผงควบคุม</button>
-        <button class="btn-action" onclick="refreshData()">🔄 โหลดใหม่</button>
+        <button class="btn-refresh" onclick="loadSheet(currentSheet)">🔄 โหลดใหม่</button>
     </div>
 
-    <!-- แถบสถานะ -->
-    <div class="status-bar">
-        <span id="sheetStatus">📋 ชีต: <strong>بيانات الأعضاء</strong></span>
-        <span id="rowCount" class="badge">จำนวน: 0 แถว</span>
+    <div class="status">
+        📋 ชีต: <strong id="sheetName">بيانات الأعضاء</strong> | 
+        จำนวน: <span id="rowCount">0</span> แถว
     </div>
 
-    <!-- ส่วนควบคุม CRUD -->
     <div class="controls">
-        <span style="font-weight:bold;">✏️ จัดการข้อมูล:</span>
+        <span style="font-weight:bold;">✏️ จัดการ:</span>
         <input type="text" id="rowIndex" placeholder="แถวที่ (0,1,2...)" style="width:80px;">
-        <input type="text" id="inputData" placeholder="ข้อมูล เช่น สินค้า,100,ชิ้น" style="flex:1; min-width:200px;">
+        <input type="text" id="inputData" placeholder="ข้อมูล คั่นด้วย , เช่น สินค้า,100,ชิ้น" style="flex:1; min-width:150px;">
         <button class="btn-add" onclick="addRow()">➕ เพิ่ม</button>
         <button class="btn-update" onclick="updateRow()">✏️ แก้ไข</button>
         <button class="btn-delete" onclick="deleteRow()">🗑️ ลบ</button>
     </div>
 
-    <!-- ตารางแสดงข้อมูล -->
-    <div class="scrollable">
-        <div id="tableContainer">
-            <div class="loading">⏳ กำลังโหลดข้อมูล...</div>
-        </div>
-    </div>
-
-    <!-- แสดงผล Raw JSON -->
-    <details>
-        <summary style="cursor:pointer; padding:10px; background:#e8eaf6; border-radius:6px; margin-top:10px;">
-            📄 แสดงข้อมูลแบบ JSON (คลิกเพื่อขยาย)
-        </summary>
+    <div id="tableContainer"><div class="loading">⏳ กำลังโหลด...</div></div>
+    <details><summary style="cursor:pointer; padding:10px; background:#e8eaf6; border-radius:6px; margin-top:10px;">📄 แสดง JSON</summary>
         <div id="result">รอข้อมูล...</div>
     </details>
 </div>
 
 <script>
-// ============================================================
-// ตั้งค่า
-// ============================================================
 const PROXY_URL = 'https://soft-hat-639a.hem5426.workers.dev/api/data';
 const API_SECRET = 'MySuperSecretKey84265!@#';
-
 let currentSheet = 'بيانات الأعضاء';
-let currentData = [];
 
-// ============================================================
-// โหลดข้อมูล
-// ============================================================
 async function loadSheet(sheetName) {
     currentSheet = sheetName;
-    document.getElementById('sheetStatus').innerHTML = `📋 ชีต: <strong>${sheetName}</strong>`;
+    document.getElementById('sheetName').textContent = sheetName;
     document.getElementById('tableContainer').innerHTML = '<div class="loading">⏳ กำลังโหลด...</div>';
 
     try {
-        const encodedSheet = encodeURIComponent(sheetName);
-        const url = `${PROXY_URL}?sheet=${encodedSheet}`;
-        const response = await fetch(url, {
-            headers: { 'X-API-Secret': API_SECRET }
-        });
-        const data = await response.json();
-
+        const url = `${PROXY_URL}?sheet=${encodeURIComponent(sheetName)}`;
+        const res = await fetch(url, { headers: { 'X-API-Secret': API_SECRET } });
+        const data = await res.json();
         document.getElementById('result').textContent = JSON.stringify(data, null, 2);
 
         if (data.success && data.data) {
-            currentData = data.data;
             renderTable(data.data);
-            document.getElementById('rowCount').textContent = `จำนวน: ${data.data.length} แถว`;
+            document.getElementById('rowCount').textContent = data.data.length;
         } else {
-            document.getElementById('tableContainer').innerHTML = 
-                `<div class="error">❌ ${data.error || 'ไม่พบข้อมูล'}</div>`;
+            document.getElementById('tableContainer').innerHTML = `<div style="color:red;">❌ ${data.error || 'ไม่พบข้อมูล'}</div>`;
         }
-    } catch (error) {
-        document.getElementById('tableContainer').innerHTML = 
-            `<div class="error">❌ Error: ${error.message}</div>`;
+    } catch (e) {
+        document.getElementById('tableContainer').innerHTML = `<div style="color:red;">❌ ${e.message}</div>`;
     }
 }
 
-// ============================================================
-// แสดงตาราง
-// ============================================================
 function renderTable(data) {
     if (!data || data.length === 0) {
-        document.getElementById('tableContainer').innerHTML = '<div style="padding:20px;">📭 ไม่มีข้อมูล</div>';
+        document.getElementById('tableContainer').innerHTML = '<div>📭 ไม่มีข้อมูล</div>';
         return;
     }
-
     let html = '<table><thead><tr>';
-    data[0].forEach(header => {
-        html += `<th>${header || ''}</th>`;
-    });
+    data[0].forEach(h => html += `<th>${h || ''}</th>`);
     html += '</tr></thead><tbody>';
-
     for (let i = 1; i < data.length; i++) {
         html += '<tr>';
-        data[i].forEach((cell, j) => {
-            // ถ้าคอลัมน์เป็น URL หรือรูปภาพ
-            if (j === 7) { // คอลัมน์รูปภาพ
-                html += `<td>${cell ? '🖼️' : ''}</td>`;
-            } else {
-                html += `<td>${cell || ''}</td>`;
-            }
-        });
+        data[i].forEach(c => html += `<td>${c || ''}</td>`);
         html += '</tr>';
     }
     html += '</tbody></table>';
-
     document.getElementById('tableContainer').innerHTML = html;
 }
 
-// ============================================================
-// CRUD Operations
-// ============================================================
-
-// เพิ่มข้อมูล
 async function addRow() {
     const input = document.getElementById('inputData').value.trim();
-    if (!input) {
-        alert('กรุณากรอกข้อมูล เช่น "สินค้าใหม่,100,ชิ้น"');
-        return;
-    }
-    const rowData = input.split(',').map(item => item.trim());
-
+    if (!input) return alert('กรุณากรอกข้อมูล');
+    const rowData = input.split(',').map(x => x.trim());
     try {
         const url = `${PROXY_URL}?sheet=${encodeURIComponent(currentSheet)}`;
-        const response = await fetch(url, {
+        const res = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Secret': API_SECRET
-            },
+            headers: { 'Content-Type': 'application/json', 'X-API-Secret': API_SECRET },
             body: JSON.stringify({ rowData })
         });
-        const result = await response.json();
-        document.getElementById('result').textContent = JSON.stringify(result, null, 2);
-        if (result.success) {
-            alert('✅ เพิ่มข้อมูลสำเร็จ!');
-            loadSheet(currentSheet);
-        } else {
-            alert('❌ ' + result.error);
-        }
-    } catch (error) {
-        alert('❌ Error: ' + error.message);
-    }
+        const data = await res.json();
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        if (data.success) { alert('✅ เพิ่มสำเร็จ!'); loadSheet(currentSheet); }
+        else alert('❌ ' + data.error);
+    } catch (e) { alert('❌ ' + e.message); }
 }
 
-// แก้ไขข้อมูล
 async function updateRow() {
     const index = parseInt(document.getElementById('rowIndex').value);
     const input = document.getElementById('inputData').value.trim();
-    if (isNaN(index) || index < 0) {
-        alert('กรุณาระบุหมายเลขแถว (0, 1, 2...)');
-        return;
-    }
-    if (!input) {
-        alert('กรุณากรอกข้อมูลใหม่');
-        return;
-    }
-    const rowData = input.split(',').map(item => item.trim());
-
+    if (isNaN(index)) return alert('กรุณาระบุแถว');
+    if (!input) return alert('กรุณากรอกข้อมูล');
+    const rowData = input.split(',').map(x => x.trim());
     try {
         const url = `${PROXY_URL}/${index}?sheet=${encodeURIComponent(currentSheet)}`;
-        const response = await fetch(url, {
+        const res = await fetch(url, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Secret': API_SECRET
-            },
+            headers: { 'Content-Type': 'application/json', 'X-API-Secret': API_SECRET },
             body: JSON.stringify({ rowData })
         });
-        const result = await response.json();
-        document.getElementById('result').textContent = JSON.stringify(result, null, 2);
-        if (result.success) {
-            alert('✅ แก้ไขข้อมูลสำเร็จ!');
-            loadSheet(currentSheet);
-        } else {
-            alert('❌ ' + result.error);
-        }
-    } catch (error) {
-        alert('❌ Error: ' + error.message);
-    }
+        const data = await res.json();
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        if (data.success) { alert('✅ แก้ไขสำเร็จ!'); loadSheet(currentSheet); }
+        else alert('❌ ' + data.error);
+    } catch (e) { alert('❌ ' + e.message); }
 }
 
-// ลบข้อมูล
 async function deleteRow() {
     const index = parseInt(document.getElementById('rowIndex').value);
-    if (isNaN(index) || index < 0) {
-        alert('กรุณาระบุหมายเลขแถว (0, 1, 2...)');
-        return;
-    }
-    if (!confirm(`⚠️ คุณต้องการลบแถวที่ ${index} ใช่หรือไม่?`)) {
-        return;
-    }
-
+    if (isNaN(index)) return alert('กรุณาระบุแถว');
+    if (!confirm(`⚠️ ลบแถวที่ ${index}?`)) return;
     try {
         const url = `${PROXY_URL}/${index}?sheet=${encodeURIComponent(currentSheet)}`;
-        const response = await fetch(url, {
+        const res = await fetch(url, {
             method: 'DELETE',
             headers: { 'X-API-Secret': API_SECRET }
         });
-        const result = await response.json();
-        document.getElementById('result').textContent = JSON.stringify(result, null, 2);
-        if (result.success) {
-            alert('✅ ลบข้อมูลสำเร็จ!');
-            loadSheet(currentSheet);
-        } else {
-            alert('❌ ' + result.error);
-        }
-    } catch (error) {
-        alert('❌ Error: ' + error.message);
-    }
+        const data = await res.json();
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        if (data.success) { alert('✅ ลบสำเร็จ!'); loadSheet(currentSheet); }
+        else alert('❌ ' + data.error);
+    } catch (e) { alert('❌ ' + e.message); }
 }
 
-// ============================================================
-// Refresh
-// ============================================================
-function refreshData() {
-    loadSheet(currentSheet);
-}
-
-// ============================================================
-// เริ่มต้นอัตโนมัติ
-// ============================================================
-window.onload = function() {
-    loadSheet('بيانات الأعضاء');
-};
+window.onload = () => loadSheet('بيانات الأعضاء');
 </script>
-
 </body>
 </html>
